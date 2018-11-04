@@ -12,6 +12,8 @@ Currently supported operations:
   * Addition
   * Subtraction
   * Multiplication
+  * Division
+  * Modulo
   * Exponentiation
   
 * Modular Arithmetic :
