@@ -101,15 +101,14 @@ BigUInt<BitCount> BigUInt<BitCount>::MulMod(BigUInt<BitCount> a, BigUInt<OtherBi
 		if (b.IsOdd()) 
         {
 			result += a;
-            // Really naive and bad modulus
-			while (result.Compare(mod) > 0)
-			   result -= mod;
+            if (result.Compare(mod) > 0)
+			   result = result % mod;
         }
 
         b.RightShift();
         a.LeftShift();
-		while (a.Compare(mod) > 0)
-		   a -= mod;
+        if (a.Compare(mod) > 0)
+		   a = a % mod;
     }
     return result;
 }

@@ -28,10 +28,10 @@ int main()
     BigUInt<2048> mod(prime, 64);
 
     BigUInt<2048> result1 = const_uint1.PowMod(exp, mod);
-    std::cout << "const: \n"    << result1 << '\n';
+    std::cout << "const: \n" << result1 << '\n';
 
     BigUInt<2048> result2 = BigUInt<4096>::PowMod(uint1, exp, mod);
-    std::cout << "static: \n"   << result2 << '\n';
+    std::cout << "static: \n" << result2 << '\n';
 
     uint1.PowMod(exp, mod);
     std::cout << "instance: \n" << uint1 << '\n';

@@ -74,7 +74,7 @@ BigUInt<BitCount> BigUInt<BitCount>::operator-(const uint64_t other) const
 }
 
 template <unsigned BitCount>
-BigUInt<BitCount> BigUInt<BitCount>::operator-(const BigUInt other) const
+BigUInt<BitCount> BigUInt<BitCount>::operator-(const BigUInt& other) const
 {
     if (other.IsZero())
         return *this;
@@ -84,11 +84,14 @@ BigUInt<BitCount> BigUInt<BitCount>::operator-(const BigUInt other) const
 }
 
 template <unsigned BitCount>
-BigUInt<BitCount>& BigUInt<BitCount>::operator-=(const BigUInt other)
+BigUInt<BitCount>& BigUInt<BitCount>::operator-=(const BigUInt& other)
 {
+    if (other.IsZero())
+        return *this;
     BigUInt<BitCount> invertOther = ~other;
     invertOther += 1;
-    return *this += invertOther;
+    *this += invertOther;
+    return *this;
 }
 #pragma endregion 
 
@@ -136,6 +139,75 @@ BigUInt<BitCount>& BigUInt<BitCount>::operator*=(BigUInt b)
     }
 
     *this = result;
+    return *this;
+}
+#pragma endregion 
+
+#pragma region Division
+template <unsigned int BitCount>
+template <unsigned int OtherBitCount, unsigned int Remainder>
+BigUInt<BitCount> BigUInt<BitCount>::Divide(const BigUInt<OtherBitCount>& b, BigUInt<Remainder>& r) const
+{
+    if(b.IsZero())
+        throw std::overflow_error("Divide by zero exception");
+    BigUInt<BitCount> divisor = b;
+    BigUInt quotient;
+    r = *this;
+
+    if (divisor.Compare(r) > 0)
+        return 0;
+    while (divisor.Compare(r) <= 0 && !b.number[b.ULL_COUNT - 1] & ((uint64_t)1 << 63) )
+    {
+        divisor.LeftShift();
+    }
+    
+    divisor.RightShift();
+    
+    while (r.Compare(b) >= 0)
+    {
+        if(r.Compare(divisor) >= 0)
+        {
+            r -= b;
+            quotient.number[0] |= 1;
+        }
+        quotient.LeftShift();
+        divisor.RightShift();
+    }
+    return quotient;
+}
+
+template <unsigned int BitCount>
+template<unsigned int OtherBitCount>
+BigUInt<BitCount> BigUInt<BitCount>::operator/(BigUInt<OtherBitCount> b) const
+{
+    BigUInt r;
+    return Divide(b,r);
+}
+template <unsigned int BitCount>
+template<unsigned int OtherBitCount>
+BigUInt<BitCount>& BigUInt<BitCount>::operator/=(BigUInt<OtherBitCount> b)
+{
+    BigUInt r;
+    *this = Divide(b,r);
+    return *this;
+}
+
+template <unsigned int BitCount>
+template<unsigned int OtherBitCount>
+BigUInt<BitCount> BigUInt<BitCount>::operator%(BigUInt<OtherBitCount> b) const
+{
+    BigUInt r;
+    Divide(b,r);
+    return r;
+}
+
+template <unsigned int BitCount>
+template<unsigned int OtherBitCount>
+BigUInt<BitCount>& BigUInt<BitCount>::operator%=(BigUInt<OtherBitCount> b)
+{
+    BigUInt r;
+    Divide(b,r);
+    *this = r;
     return *this;
 }
 #pragma endregion 

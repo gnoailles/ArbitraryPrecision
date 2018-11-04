@@ -67,17 +67,29 @@ public:
 
     BigUInt operator-(const uint64_t other) const;
     //Using 2s complement for BigInt subtraction
-    BigUInt operator-(const BigUInt other) const;
-    BigUInt& operator-=(const BigUInt other);
+    BigUInt operator-(const BigUInt& other) const;
+    BigUInt& operator-=(const BigUInt& other);
 
+    //REWORK Multiplication is currently very slow, needs improvement
     //Binary (peasant) multiplication 
     BigUInt operator*(BigUInt b) const;
     BigUInt& operator*=(BigUInt b);
 
+    template<unsigned int OtherBitCount, unsigned int Remainder>
+    BigUInt<BitCount> Divide(const BigUInt<OtherBitCount>& b, BigUInt<Remainder>& r) const;
+
+    template<unsigned int OtherBitCount>
+    BigUInt<BitCount> operator/(BigUInt<OtherBitCount> b) const;
+    template<unsigned int OtherBitCount>
+    BigUInt<BitCount>& operator/=(BigUInt<OtherBitCount> b);
+
+    template<unsigned int OtherBitCount>
+    BigUInt<BitCount> operator%(BigUInt<OtherBitCount> b) const;
+    template<unsigned int OtherBitCount>
+    BigUInt<BitCount>& operator%=(BigUInt<OtherBitCount> b);
+
     BigUInt Power(uint64_t power) const;
     BigUInt Power(BigUInt power) const;
-
-    //TODO Implement division and modulus
 #pragma  endregion 
 
 #pragma region Modular Arithmetic
@@ -86,9 +98,9 @@ public:
     /**
      * \brief Modular multiplication
      * \tparam OtherBitCount size of B in bits
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param b value multiplied by instance
-     * \param mod modulo applied to multiplication
+     * \param mod modulus applied to multiplication
      * \return ref to instance
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -96,9 +108,9 @@ public:
     /**
      * \brief Modular multiplication
      * \tparam OtherBitCount size of B in bits
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param b value multiplied by instance
-     * \param mod modulo applied to multiplication
+     * \param mod modulus applied to multiplication
      * \return instance * b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -106,11 +118,11 @@ public:
 
     /**
      * \brief Modular multiplication
-     * \tparam OtherBitCount size of B in bits, used for internal multiplication, should handle (mod-1)*2
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam OtherBitCount size of B in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param a value multiplied by b
      * \param b value multiplied by a
-     * \param mod modulo applied to multiplication
+     * \param mod modulus applied to multiplication
      * \return a * b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -121,9 +133,9 @@ public:
      /**
      * \brief Modular exponentiation
      * \tparam OtherBitCount size of B in bits
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param b exponent
-     * \param mod modulo applied to exponentiation
+     * \param mod modulus applied to exponentiation
      * \return ref to instance
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -131,9 +143,9 @@ public:
     /**
      * \brief Modular exponentiation
      * \tparam OtherBitCount size of B in bits
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param b exponent
-     * \param mod modulo applied to exponentiation
+     * \param mod modulus applied to exponentiation
      * \return instance ^ b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -142,10 +154,10 @@ public:
     /**
      * \brief Modular exponentiation
      * \tparam OtherBitCount size of B in bits
-     * \tparam ModBitCount size of Modulo in bits
+     * \tparam ModBitCount size of modulus in bits
      * \param a base
      * \param b exponent
-     * \param mod modulo applied to exponentiation
+     * \param mod modulus applied to exponentiation
      * \return a ^ b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
@@ -156,6 +168,7 @@ public:
 #pragma region Convertions
 
     //TODO Add casts to uint types
+
     friend std::ostream& operator<<(std::ostream& os, const BigUInt<BitCount>& p_bigUInt)
     {
         for (int i = 0; i < p_bigUInt.ULL_COUNT; ++i)
