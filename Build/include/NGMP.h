@@ -5,39 +5,40 @@
 #include <corecrt_memcpy_s.h>
 #include <random>
 #include <cassert>
+#include <sstream>
 
 template<unsigned int BitCount>
-class BigUInt
+class NGMP
 {
     static_assert(BitCount % 64 == 0, "Only multiples of 64 are supported");
     template<unsigned int OtherBitCount>
-    friend class BigUInt;
+    friend class NGMP;
 
 private:
-    static const unsigned int ULL_COUNT = BitCount / 64;
-    uint64_t number[ULL_COUNT] = {0};
+    static const unsigned int MAX_LIMB_COUNT = BitCount / 64;
+    uint64_t number[MAX_LIMB_COUNT] = {0};
 
 public:
 
 #pragma region Constructors & Assignments
-    BigUInt()   = default;
-    ~BigUInt()  = default;
-    BigUInt(const uint64_t value);
-    BigUInt(const uint64_t array[], unsigned int size);
-    BigUInt(const uint32_t array[], unsigned int size);
+    NGMP()   = default;
+    ~NGMP()  = default;
+    NGMP(const uint64_t value);
+    NGMP(const uint64_t array[], unsigned int size);
+    NGMP(const uint32_t array[], unsigned int size);
 
-    BigUInt(std::initializer_list<uint64_t> list);
-    BigUInt(std::initializer_list<uint32_t> list);
-    BigUInt(const BigUInt<BitCount>& other);
+    NGMP(std::initializer_list<uint64_t> list);
+    NGMP(std::initializer_list<uint32_t> list);
+    NGMP(const NGMP<BitCount>& other);
 
     template<unsigned int OtherBitCount>
-    BigUInt(const BigUInt<OtherBitCount>& other);
+    NGMP(const NGMP<OtherBitCount>& other);
 
-    BigUInt& operator=(const BigUInt<BitCount>& other);
+    NGMP& operator=(const NGMP<BitCount>& other);
     template<unsigned int OtherBitCount>
-    BigUInt& operator=(const BigUInt<BitCount>& other);
+    NGMP& operator=(const NGMP<BitCount>& other);
 
-    static BigUInt<BitCount> Random();
+    static NGMP<BitCount> Random();
 #pragma endregion 
 
 #pragma region Comparison operators
@@ -45,51 +46,56 @@ public:
     bool IsOdd() const;
 
     bool operator==(uint64_t value) const;
-    bool operator==(const BigUInt& other) const;
+    bool operator==(const NGMP& other) const;
 
-    int Compare(const BigUInt<BitCount>& other) const;
+    int Compare(const NGMP<BitCount>& other) const;
 #pragma endregion 
 
 #pragma region Bitwise Operations
-    void LeftShift();
-    void RightShift();
+    NGMP<BitCount>& LeftShift(uint64_t value = 1);
+    NGMP<BitCount>& RightShift(uint64_t value = 1);
 
-    BigUInt operator~() const;
-    BigUInt& operator~();
+    uint64_t     FindHighestBit() const;
+    unsigned int FindUsedLimbCount() const;
+
+    NGMP operator~() const;
+    NGMP& operator~();
 #pragma endregion 
 
 #pragma region Arithmetic Operations
-    BigUInt operator+(const uint64_t other) const;
-    BigUInt operator+(const BigUInt other) const;
-    BigUInt& operator+=(const uint64_t other);
-    BigUInt& operator+=(const BigUInt other);
+    NGMP operator+(const uint64_t other) const;
+    NGMP operator+(const NGMP other) const;
+    NGMP& operator+=(const uint64_t other);
+    NGMP& operator+=(const NGMP other);
 
 
-    BigUInt operator-(const uint64_t other) const;
+    NGMP operator-(const uint64_t other) const;
     //Using 2s complement for BigInt subtraction
-    BigUInt operator-(const BigUInt& other) const;
-    BigUInt& operator-=(const BigUInt& other);
+    NGMP operator-(const NGMP& other) const;
+    NGMP& operator-=(const NGMP& other);
 
-    //REWORK Multiplication is currently very slow, needs improvement
     //Binary (peasant) multiplication 
-    BigUInt operator*(BigUInt b) const;
-    BigUInt& operator*=(BigUInt b);
+    NGMP LongMultiplication(NGMP b) const;
+    NGMP& LongMultiplication(NGMP b);
+    NGMP Karatsuba(NGMP b) const;
+    NGMP operator*(NGMP b) const;
+    NGMP& operator*=(NGMP b);
 
     template<unsigned int OtherBitCount, unsigned int Remainder>
-    BigUInt<BitCount> Divide(const BigUInt<OtherBitCount>& b, BigUInt<Remainder>& r) const;
+    NGMP<BitCount> Divide(const NGMP<OtherBitCount>& b, NGMP<Remainder>& r) const;
 
     template<unsigned int OtherBitCount>
-    BigUInt<BitCount> operator/(BigUInt<OtherBitCount> b) const;
+    NGMP<BitCount> operator/(NGMP<OtherBitCount> b) const;
     template<unsigned int OtherBitCount>
-    BigUInt<BitCount>& operator/=(BigUInt<OtherBitCount> b);
+    NGMP<BitCount>& operator/=(NGMP<OtherBitCount> b);
 
     template<unsigned int OtherBitCount>
-    BigUInt<BitCount> operator%(BigUInt<OtherBitCount> b) const;
+    NGMP<BitCount> operator%(NGMP<OtherBitCount> b) const;
     template<unsigned int OtherBitCount>
-    BigUInt<BitCount>& operator%=(BigUInt<OtherBitCount> b);
+    NGMP<BitCount>& operator%=(NGMP<OtherBitCount> b);
 
-    BigUInt Power(uint64_t power) const;
-    BigUInt Power(BigUInt power) const;
+    NGMP Power(uint64_t power) const;
+    NGMP Power(NGMP power) const;
 #pragma  endregion 
 
 #pragma region Modular Arithmetic
@@ -104,7 +110,7 @@ public:
      * \return ref to instance
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    BigUInt& MulMod(BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod);
+    NGMP& MulMod(NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod);
     /**
      * \brief Modular multiplication
      * \tparam OtherBitCount size of B in bits
@@ -114,7 +120,7 @@ public:
      * \return instance * b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    BigUInt MulMod(BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod) const;
+    NGMP MulMod(NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod) const;
 
     /**
      * \brief Modular multiplication
@@ -126,7 +132,7 @@ public:
      * \return a * b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    static BigUInt MulMod(BigUInt<BitCount> a, BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod);
+    static NGMP MulMod(NGMP<BitCount> a, NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod);
     #pragma  endregion 
 
     #pragma region Exponentiation
@@ -139,7 +145,7 @@ public:
      * \return ref to instance
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    BigUInt& PowMod(BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod);
+    NGMP& PowMod(NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod);
     /**
      * \brief Modular exponentiation
      * \tparam OtherBitCount size of B in bits
@@ -149,7 +155,7 @@ public:
      * \return instance ^ b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    BigUInt PowMod(BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod) const;
+    NGMP PowMod(NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod) const;
 
     /**
      * \brief Modular exponentiation
@@ -161,17 +167,21 @@ public:
      * \return a ^ b % mod
      */
     template<unsigned int OtherBitCount, unsigned int ModBitCount>
-    static BigUInt PowMod(BigUInt<BitCount> a, BigUInt<OtherBitCount> b, const BigUInt<ModBitCount>& mod);
+    static NGMP PowMod(NGMP<BitCount> a, NGMP<OtherBitCount> b, const NGMP<ModBitCount>& mod);
     #pragma  endregion 
 #pragma  endregion 
 
-#pragma region Convertions
+#pragma region Utils
 
     //TODO Add casts to uint types
 
-    friend std::ostream& operator<<(std::ostream& os, const BigUInt<BitCount>& p_bigUInt)
+    uint64_t NumberOfDigits() const
     {
-        for (int i = 0; i < p_bigUInt.ULL_COUNT; ++i)
+        return 1 + FindHighestBit() * log10(2);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const NGMP<BitCount>& p_bigUInt)
+    {
+        for (int i = 0; i < p_bigUInt.MAX_LIMB_COUNT; ++i)
         {
             os << std::hex << std::uppercase << p_bigUInt.number[i] << " ";
             if((i + 1) % 6 == 0)
@@ -184,8 +194,8 @@ public:
 
 
 
-#include "BigUInt_ctor_assign.hxx"
-#include "BigUInt_comp.hxx"
-#include "BigUInt_bitwise.hxx"
-#include "BigUInt_arithmetic.hxx"
-#include "BigUint_mod_arithmetic.hxx"
+#include "NGMP_ctor_assign.hxx"
+#include "NGMP_comp.hxx"
+#include "NGMP_bitwise.hxx"
+#include "NGMP_arithmetic.hxx"
+#include "NGMP_mod_arithmetic.hxx"

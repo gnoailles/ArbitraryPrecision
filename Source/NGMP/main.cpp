@@ -1,5 +1,5 @@
-#include "BigUInt.h"
 #include <iostream>
+#include "NGMP.h"
 
 int main()
 {
@@ -21,16 +21,16 @@ int main()
         0x3995497C, 0xEA956AE5, 0x15D22618, 0x98FA0510,
         0x15728E5A, 0x8AACAA68, 0xFFFFFFFF, 0xFFFFFFFF};
 
-    BigUInt<4096> uint1(2);
-    const BigUInt<4096> const_uint1(2);
-    BigUInt<2048> exp(prime, 64);
+    NGMP<4096> uint1(2);
+    const NGMP<4096> const_uint1(2);
+    NGMP<2048> exp(prime, 64);
     exp -= 1;
-    BigUInt<2048> mod(prime, 64);
+    NGMP<2048> mod(prime, 64);
 
-    BigUInt<2048> result1 = const_uint1.PowMod(exp, mod);
+    NGMP<2048> result1 = const_uint1.PowMod(exp, mod);
     std::cout << "const: \n" << result1 << '\n';
 
-    BigUInt<2048> result2 = BigUInt<4096>::PowMod(uint1, exp, mod);
+    NGMP<2048> result2 = NGMP<4096>::PowMod(uint1, exp, mod);
     std::cout << "static: \n" << result2 << '\n';
 
     uint1.PowMod(exp, mod);
@@ -39,5 +39,5 @@ int main()
 
     std::cin.get();
 
-    return 0;
+return 0;
 }

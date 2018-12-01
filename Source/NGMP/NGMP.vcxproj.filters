@@ -20,23 +20,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BigUInt.h">
+    <ClInclude Include="include\NGMP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BigUInt_comp.hxx">
+    <ClInclude Include="include\NGMP_arithmetic.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BigUInt_bitwise.hxx">
+    <ClInclude Include="include\NGMP_bitwise.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BigUInt_arithmetic.hxx">
+    <ClInclude Include="include\NGMP_comp.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BigUint_mod_arithmetic.hxx">
+    <ClInclude Include="include\NGMP_mod_arithmetic.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BigUInt_ctor_assign.hxx" />
+    <None Include="include\NGMP_ctor_assign.hxx" />
   </ItemGroup>
 </Project>
