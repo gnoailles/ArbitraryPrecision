@@ -179,6 +179,7 @@ public:
     {
         return 1 + FindHighestBit() * log10(2);
     }
+
     friend std::ostream& operator<<(std::ostream& os, const NGMP<BitCount>& p_bigUInt)
     {
         for (int i = 0; i < p_bigUInt.MAX_LIMB_COUNT; ++i)
@@ -188,6 +189,23 @@ public:
                 os << '\n';
         }
         return os;
+    }
+
+    std::string ToString() const
+    {
+        std::ostringstream ss;
+        for (int i = 0; i < MAX_LIMB_COUNT; ++i)
+        {
+            ss << std::hex << std::uppercase << number[i] << " ";
+            if((i + 1) % 6 == 0)
+                ss << '\n';
+        }
+        return ss.str();
+    }
+
+    uint64_t* Get64BitArray()
+    {
+        return number;
     }
 #pragma endregion
 };
